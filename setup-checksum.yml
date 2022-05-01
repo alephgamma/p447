@@ -1,0 +1,38 @@
+---
+- hosts: webservers
+  become: true
+  vars: 
+    p: /home/cloud_user/p447/details.txt
+    f: |
+      VERSION: 1.23.6
+      CODE_NAME: FOILHAT
+      DEPLOY_CODE: NULL
+      OS: LINUX
+  tasks:
+    - name: install httpd
+      yum:
+        name: httpd
+    - name: start httpd
+      systemd:
+        name: httpd
+        state: started
+#    - name: create the file on localhost
+#      copy:
+#        dest: "{{ p }}" 
+#        content: "{{ f }}" 
+#      delegate_to: localhost
+#      become_user: cloud_user
+#    - name: create package on localhost
+#      archive: 
+#        path: "{{ p }}"
+#        dest: /home/cloud_user/p447/package.tgz 
+#      delegate_to: localhost
+#      become_user: cloud_user
+    - name: Transfer to webserver
+      copy:
+        src: package.tgz
+        dest: /var/www/html/package.tgz
+        remote_src: no
+    - shell: 'echo -e "---\nchecksum:" `sha256sum package.tgz | cut -f1 -d" "` >  integrity.yml'
+      delegate_to: localhost
+      become_user: cloud_user
