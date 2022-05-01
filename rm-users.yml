@@ -1,0 +1,22 @@
+---
+- name: del users
+  become: true
+  hosts: all
+  no_log: false
+  vars:
+    pp: 'UX4aHjHe.Q'
+  vars_files:
+    users-list.yml
+  tasks:
+#    - name: create the file
+#      debug: 
+#        msg: "{{ lookup('password','/tmp/' + item.key + '_file length=10' ) }}"
+#      with_dict: "{{ users }}"
+    - name: rm user
+      user:
+        name: "{{ item.key }}"
+        state: absent
+      with_dict: "{{ users }}"
+    - name: really remove
+      shell: "rm -rf /home/{{ item.key }}"
+      with_dict: "{{ users }}"
